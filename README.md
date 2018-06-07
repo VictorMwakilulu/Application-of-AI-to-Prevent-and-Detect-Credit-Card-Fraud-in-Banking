@@ -18,7 +18,5 @@ Here is an indicative summarization of AI appliance to specific fraud detection 
 
 
 ```markdown
-[Link](url) ![Image](SRC="Pros & Cons of AI methods and Technology")
-
-<img src="Pros & Cons of AI methods and Technology.PNG" alt="Trulli" width="500" height="333">
+<img src="Pros & Cons of AI methods and Technology.PNG">
 ```
