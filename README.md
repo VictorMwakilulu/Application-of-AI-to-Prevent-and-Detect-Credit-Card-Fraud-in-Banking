@@ -15,3 +15,16 @@ Here is an indicative summarization of AI appliance to specific fraud detection 
 - Bayesian networks have a large application into credit card industry, especially to monitor back-propagation of errors. Combined with Neural Classifiers contribute significantly to reduce “miss-detections” of card fraudulent behavior.
 - Decision trees numbers many techniques relying on this general AI concept. Usually combined with data mining techniques is mostly used to detect and isolate fraudulent operations in the payment system.
 - Combining algorithms are usually applied to deal with banks policies and rules. They cover topics like: diagnostic recommendation engines; diagnostic resolution strategies; probabilistic expectations; best match problems, negative perceptions selection, density selection algorithms. 
+
+Techniques | Pros | Limitations
+---------- | ---- | ------------
+Artificial Neural Network (ANN) | Ability to learn from the past | Difficulty to confirm the structure
+Artificial Immune System (AIS) | High capability in pattern recognition | Need high training time
+Genetic Algorithm | Works well with noisy data | Requires extensive tool knowledge to set up and operate		
+Hidden Markov Model (HMM) | Fast in detection | Not scalable to large size data sets
+Support Vector Machines (SVM)	| SVMs deliver a unique solution, SVMs can be robust, even for biased training sample | Poor in process large dataset
+Bayesian Network | High processing and detection speed | Excessive training need
+Fuzzy Neural Network | Very fast in detection | Resource consuming
+Inductive logic programming (ILP) | Powerful in process different data types | Has low predictive accuracy
+Case-based reasoning (CBR) | Useful where many examples are available | May suffer from the problem of incomplete or noisy data.
+Decision tree (DT) | High flexibility | Requirements to check each condition one by one.
