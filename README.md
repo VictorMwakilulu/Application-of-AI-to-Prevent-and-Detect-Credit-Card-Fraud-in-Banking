@@ -16,7 +16,9 @@ Here is an indicative summarization of AI appliance to specific fraud detection 
 - Decision trees numbers many techniques relying on this general AI concept. Usually combined with data mining techniques is mostly used to detect and isolate fraudulent operations in the payment system.
 - Combining algorithms are usually applied to deal with banks policies and rules. They cover topics like: diagnostic recommendation engines; diagnostic resolution strategies; probabilistic expectations; best match problems, negative perceptions selection, density selection algorithms. 
 
+[Pros & Cons of AI methods and Technology.PNG](SRC)
 
 ```markdown
 <img src="Pros & Cons of AI methods and Technology.PNG">
+[Pros & Cons of AI methods and Technology.PNG](SRC)
 ```
