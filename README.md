@@ -18,6 +18,7 @@ Here is an indicative summarization of AI appliance to specific fraud detection 
 •	Combining algorithms are usually applied to deal with banks policies and rules. They cover topics like: diagnostic recommendation engines; diagnostic resolution strategies; probabilistic expectations; best match problems, negative perceptions selection, density selection algorithms. 
 
 ![Image](Pros & Cons of AI methods and Technology.PNG)
+![alt text](Pros & Cons of AI methods and Technology.PNG)
 
 You can use the [editor on GitHub](https://github.com/VictorMwakilulu/Applied-Project/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
 
