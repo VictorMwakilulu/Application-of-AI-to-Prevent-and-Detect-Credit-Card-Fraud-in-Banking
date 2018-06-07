@@ -15,7 +15,10 @@ Here is an indicative summarization of AI appliance to specific fraud detection 
 - Bayesian networks have a large application into credit card industry, especially to monitor back-propagation of errors. Combined with Neural Classifiers contribute significantly to reduce “miss-detections” of card fraudulent behavior.
 - Decision trees numbers many techniques relying on this general AI concept. Usually combined with data mining techniques is mostly used to detect and isolate fraudulent operations in the payment system.
 - Combining algorithms are usually applied to deal with banks policies and rules. They cover topics like: diagnostic recommendation engines; diagnostic resolution strategies; probabilistic expectations; best match problems, negative perceptions selection, density selection algorithms. 
+
+
 ```markdown
-[Link](https://github.com/VictorMwakilulu/Applied-Project/blob/master/Figures/Pros%20%26%20Cons%20of%20AI%20methods%20and%20Technology.PNG) and ![https://github.com/VictorMwakilulu/Applied-Project/blob/master/Figures/Pros%20%26%20Cons%20of%20AI%20methods%20and%20Technology.PNG](SRC)
-![Test Image 2](Pros & Cons of AI methods and Technology.PNG)
+[Link](url) ![Image](SRC="Pros & Cons of AI methods and Technology")
+
+<img src="Pros & Cons of AI methods and Technology.PNG" alt="Trulli" width="500" height="333">
 ```
