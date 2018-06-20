@@ -1,0 +1,214 @@
+---
+title: "Analysis and report"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+```{r load library}
+library(caret)
+library(e1071)
+library(randomForest)
+library(ROCR)
+
+```
+
+```{r data preparation}
+
+d <- read.csv("~/ANLY 699/Applied Project/Applied-Project/Data/ccf.csv", header = T) # read data
+d$Outcome <- as.factor(d$Outcome) # factor the categorical variables
+d$Country <- as.factor(d$Country)
+d$Decision <- as.factor(d$Country)
+d$POS <- as.factor(d$POS)
+d$Card <- as.factor(d$Card)
+
+
+levels(d$Outcome) <- c("no", "yes") #relabel the variable
+
+set.seed(10)
+index <- createDataPartition(d$Outcome, p = 0.8, list = F) ## partition data
+train <- d[index,]
+validation <- d[-index,]
+
+```
+
+In this report, we will use some data science method in order to predict credit card fraud. Here, our dependent variable is a binary variable stating if the transaction is suspect of fraud or not(yes/no). Independent variables of the model with definitions are stated below:
+
+1. Dollar amount of transaction
+
+2. Merchant country code
+
+3. Merchant category code
+
+4. Authorized (1), Declined (2), Referral (3), Pick up (4)
+
+5. Card Swiped (1) / Keyed (2)
+
+6. Card type (Classic / Gold).
+
+Here, we use four methods of the data science: logistic regression, k nearest neighbor, random forest and support vector machine. For all these case, the original data set is partitioned into test and validation set. We use 80% of data for training the model and remaining as for validation.
+
+
+
+## Logistic regression
+
+Logistic regression is one of the simplest classification algorithm in data science where dependent variable is binary in nature. The idea of logistic regression is to find the relationship between features and probability of outcome. Here, we use logistic regression as our first model to build a predictive model for outcome. 
+```{r logistic regression}
+
+
+formula <- Outcome~ Dollar + Country  + Decision+ SIC + POS + Card ##formula for model
+model.logistic <- train(formula, data = train, method = "glm", family = "binomial") ## logistic regression
+summary(model.logistic)
+
+
+predict.logistic <- predict(model.logistic, newdata = validation, type = "raw") #prediction
+confusionMatrix(predict.logistic, validation$Outcome) # confusion matrix
+
+# plot ROC curve
+p <- predict(model.logistic, newdata=validation, type="prob")
+pr <- prediction(p[,2], validation$Outcome)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf, main = "ROC curve for logistic regression")
+abline(a=0,b=1,lwd=2,lty=2,col="gray")
+
+
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+cat("Area under ROC curve\n")
+auc
+```
+
+Model summary gives the estimate, standard error, z value and p-value for each of the predictor. No predictor has a significant influence in the model (from p-value). Next we will assess the predictive ability of the model. We will use validation data to predict outcome. From confusion matrix, accuracy rate is estimated as 79.69%. At last, we will plot the ROC curve and calculate the AUC (area under the curve) which are typical performance measurements for a binary classifier. As a rule of thumb, a model with good predictive ability should have an AUC closer to 1 (1 is ideal) than to 0.5. Here, auc is 0.48 which is not an indication of good predictive performance.
+## K nearest neighbors regression
+We will train our data in k nearest neighbor (KNN) regression using caret package in R. In this case we need to pass some parameter values. We are using repeated cross-validation method. The "number" parameter holds the number of resampling iterations. The "repeats" parameter contains the complete set of folds to compute for our repeated cross-validation. In this case, we use 3 separate 10- fold validations. "tuneLength" is another parameter which indicated number of k values tested in search of best k value. Model summary gives ROC, sensitivity and specificity values of the model for different k. Optimal model is selected using the largest value of ROC.  
+
+```{r knn}
+repeats <- 3 ## number of seperate validation
+numbers <- 10  ## 10 fold validation
+tunel <- 10  ## number of k values
+
+set.seed(1234)
+x <- trainControl(method = "repeatedcv",
+                  number = numbers,
+                  repeats = repeats,
+                  classProbs = TRUE,
+                  summaryFunction = twoClassSummary)
+
+model.knn <- caret::train(formula, data = train, method = "knn", preProcess = c("center", "scale"),
+                          trControl = x,
+                          metric = "ROC",
+                          tuneLength = tunel, na.action = na.omit )     ## k nearest neighbor method
+
+model.knn
+#plot ROc vs k
+plot(model.knn)
+
+
+valid_pred <- predict(model.knn, validation, type = "raw")
+
+##Confusion matrix in test data
+cat("Confusion Matrix", "\n")
+confusionMatrix(valid_pred, validation$Outcome)  ## confusion matrix
+
+#plot ROC curve
+valid_pred_prob <- predict(model.knn, validation, type = "prob") 
+pred_val <-prediction(valid_pred_prob[,2],validation$Outcome)
+perf_val <- performance(pred_val,"auc")
+perf_val <- performance(pred_val, "tpr", "fpr")
+plot(perf_val, col = "green", lwd = 1.5, main = "ROC curve for KNN model")
+abline(a=0,b=1,lwd=2,lty=2,col="gray")
+
+cat("Area under ROC curve\n")
+perf_val@y.values[[1]]
+
+```
+We can see the variation of in ROC with different values of k by plotting these graphs. 
+
+To assess the prediction performance of the model, different measures are used. Prediction accuracy is 77.75% from confusion matrix. Area under Roc curve is 0.509 which is not an indication of good prediction performance. 
+
+## Ensemble (Random Forest)
+Random forests are an ensemble learning method for classification and regression. In random forest method, multiple decision trees and then simply reduce variation by averaging them. For training each tree, 2/3 data are used and another 1/3 is used to validate these trees. Cases are drawn at random with replacement from the data and this sample is the training set for growing trees. Number of trees are 100 and number of variables randomly selected at each split is 2. For each tree, using the remaining 1/3 data out of bag (OOB) error rate is calculated as 20.34%. 
+Variable Importance plot is a useful tool to see the importance of predictors. Mean decrease accuracy and mean decrease Gini score are plotted for each variable. Higher values of both the measurements indicate the more importance of the variable. Card variable has highest mean decrease accuracy but dollar variable has higher mean decrease Gini score. From this plot, it is not exactly clear that which variable is more important. 
+
+```{r random forest}
+model.rf <- randomForest(formula, data = train, ntree = 100, importance = T) ## train random forest model
+model.rf
+
+varImpPlot(model.rf, main = "Variable Importance plot") # variable importance plot
+
+plot(model.rf, main = "Error vs Number of Trees")
+
+pred.rf <- predict(model.rf, validation)
+cat("Confusion Matrix")
+confusionMatrix(pred.rf, validation$Outcome)
+# prediction
+pred <- predict(model.rf, type = "prob",newdata = validation)
+## calculating area under roc curve
+perf <- prediction(pred[,2], validation$Outcome)
+auc <- performance(perf, "auc")
+
+## plot ROC curve
+tptn <- performance(perf, "tpr", "fpr")
+plot(tptn, main = "ROC curve for random forest", col = 4, lwd = 2)
+abline(a=0,b=1,lwd=2,lty=2,col="gray")
+
+
+cat("Area under ROC curve:\n")
+auc@y.values[[1]]
+```
+
+We can plot the error rate across decision trees. The plot seems to indicate that after 20 decision trees there is no significant reduction in error rate. Now, we will focus on the prediction performance of the model. For assessing prediction performance, confusion matrix is a good way of looking at how good our classifier is performing. From the confusion matrix, we can see that the model has accuracy rate is 79.62%. But area under ROC curve is 0.475 indicating a bad  predictive model. 
+
+
+## Support vector machine
+Support vector machine(SVM) is another method of machine learning. To improve the performance of support vector regression best parameters should be selected. Here, our dependent variable is a binary variable and fr this reason we use Gaussian radial basis kernel function. C and gamma is the parameters for this kernel function. Choosing the best value of C and gamma are very essential for good accuracy. A common practice is to do a grid search using different value pairs of C and sigma. In model result, we can see that ROC is estimated for each of the pair of the C and sigma. The final values of C and sigma are selected based on highest ROC value.  
+
+```{r svm, results="hide"}
+set.seed(123)
+ctrl <- trainControl(method="cv",
+                     number = 2,
+                     summaryFunction=twoClassSummary,
+                     classProbs=TRUE) # define cross validation method
+
+# Grid search to fine tune SVM
+grid <- expand.grid(sigma = c(.01, .015),
+                    C = c(0.75, 0.9))
+
+
+#Train SVM
+model.svm <- train(formula, data = train, 
+                  method = "svmRadial",
+                  metric="ROC",
+                  tuneGrid = grid,
+                  trControl=ctrl)
+
+
+```
+```{r}
+model.svm
+
+pred.svm <- predict(model.svm, validation) 
+cat("Confusion Matrix")
+confusionMatrix(pred.svm, validation$Outcome)
+# prediction
+pred <- predict(model.svm, type = "prob",newdata = validation)
+## calculating area under roc curve
+perf <- prediction(pred[,2], validation$Outcome)
+auc <- performance(perf, "auc")
+
+## plot ROC curve
+tptn <- performance(perf, "tpr", "fpr")
+plot(tptn, main = "ROC curve for SVM", col = 2, lwd = 2)
+abline(a=0,b=1,lwd=2,lty=2,col="black")
+
+
+cat("Area under ROC curve:\n")
+auc@y.values[[1]]
+
+
+```
+Accuracy rate of the model, obtained from confusion matrix is 79.69%. Area under Roc curve is estimated as 0.48 indicating a bad prediction model. 

@@ -14,7 +14,7 @@ require(mxnet)
 library(caret)
 require(mlbench)
 
-nba <- read.csv("D:/R_Projects/CCFraud_VMawala/ccf.csv")
+nba <- read.csv("~/ANLY 699/Applied Project/Applied-Project/Data/ccf.csv")
 names(nba)
 
 #bind variables to use
